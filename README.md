@@ -53,6 +53,17 @@ The fastest way to get started without copying or pasting any code:
 
 Clicking this link creates a new copy of the template document directly in your Google Drive with the extension **pre-installed and ready to use**. The document includes a built-in interactive playground with sample equations ready to test and wipe clean. (You can also inspect the [live reference document](https://docs.google.com/document/d/1vxOw_FoGvNK6dfIUpfEeqINcieskAaXlm9-2W27-_hw/edit?tab=t.0)).
 
+> 🔒 **Why is making a copy safe?**
+>
+> - **Current Document Only Scope ([`documents.currentonly`](https://developers.google.com/apps-script/guides/services/authorization#scopes))**:  
+>   The extension's manifest explicitly restricts permissions to the single document you have open. It has **zero access** to your other files, folders, or personal data in Google Drive.
+> - **Zero Outbound Network Calls**:  
+>   The script does not use `UrlFetchApp` and does not request `script.external_request`. Your document content and formulas never leave your browser or Google's secure servers.
+> - **100% Inspectable & Open Source**:  
+>   In your copied doc, you can click **Extensions** → **Apps Script** at any time to inspect the code. It matches this open-source GitHub repository byte-for-byte.
+> - **Sandboxed to Your Account ([Container-Bound Script](https://developers.google.com/apps-script/guides/bound))**:  
+>   When you copy the template, Google clones the script into an isolated sandbox in your personal Google Drive. The original template creator has no access to your document, edits, or copy.
+
 ---
 
 ### Method 2: 60-Second Manual Setup in Any Existing Doc
