@@ -51,7 +51,7 @@ The fastest way to get started without copying or pasting any code:
 
 👉 [**Click here to Make a Copy of the Google Doc Template**](https://docs.google.com/document/d/1vxOw_FoGvNK6dfIUpfEeqINcieskAaXlm9-2W27-_hw/copy)
 
-Clicking this link creates a new copy of the template document directly in your Google Drive with the extension **pre-installed and ready to use**. (You can also inspect the [live reference document](https://docs.google.com/document/d/1vxOw_FoGvNK6dfIUpfEeqINcieskAaXlm9-2W27-_hw/edit?tab=t.0)).
+Clicking this link creates a new copy of the template document directly in your Google Drive with the extension **pre-installed and ready to use**. The document includes a built-in interactive playground with sample equations ready to test and wipe clean. (You can also inspect the [live reference document](https://docs.google.com/document/d/1vxOw_FoGvNK6dfIUpfEeqINcieskAaXlm9-2W27-_hw/edit?tab=t.0)).
 
 ---
 
