@@ -1,0 +1,347 @@
+/**
+ * LaTeX-to-Unicode Mapping & Translation Engine for Google Docs
+ * Provides direct conversion of mathematical symbols, Greek letters,
+ * superscripts, subscripts, blackboard bold, and operators into
+ * native Google Docs special characters and formatted runs.
+ */
+
+var UnicodeMap = (function() {
+  // Greek Lowercase (Google Docs Symbols)
+  var GREEK_LOWER = {
+    'alpha': 'α', 'beta': 'β', 'gamma': 'γ', 'delta': 'δ',
+    'epsilon': 'ε', 'varepsilon': 'ϵ', 'zeta': 'ζ', 'eta': 'η',
+    'theta': 'θ', 'vartheta': 'ϑ', 'iota': 'ι', 'kappa': 'κ',
+    'lambda': 'λ', 'mu': 'μ', 'nu': 'ν', 'xi': 'ξ',
+    'pi': 'π', 'varpi': 'ϖ', 'rho': 'ρ', 'varrho': 'ϱ',
+    'sigma': 'σ', 'varsigma': 'ς', 'tau': 'τ', 'upsilon': 'υ',
+    'phi': 'ϕ', 'varphi': 'φ', 'chi': 'χ', 'psi': 'ψ', 'omega': 'ω'
+  };
+
+  // Greek Uppercase (Google Docs Symbols)
+  var GREEK_UPPER = {
+    'Gamma': 'Γ', 'Delta': 'Δ', 'Theta': 'Θ', 'Lambda': 'Λ',
+    'Xi': 'Ξ', 'Pi': 'Π', 'Sigma': 'Σ', 'Upsilon': 'Υ',
+    'Phi': 'Φ', 'Psi': 'Ψ', 'Omega': 'Ω'
+  };
+
+  // Blackboard Bold (Double-Struck Characters)
+  var BLACKBOARD_BOLD = {
+    'A': '𝔸', 'B': '𝔹', 'C': 'ℂ', 'D': '𝔻', 'E': '𝔼', 'F': '𝔽', 'G': '𝔾',
+    'H': 'ℍ', 'I': '𝕀', 'J': '𝕁', 'K': '𝕂', 'L': '𝕃', 'M': '𝕄', 'N': 'ℕ',
+    'O': '𝕆', 'P': 'ℙ', 'Q': 'ℚ', 'R': 'ℝ', 'S': '𝕊', 'T': '𝕋', 'U': '𝕌',
+    'V': '𝕍', 'W': '𝕎', 'X': '𝕏', 'Y': '𝕐', 'Z': 'ℤ',
+    '0': '𝟘', '1': '𝟙', '2': '𝟚', '3': '𝟛', '4': '𝟜', '5': '𝟝', '6': '𝟞',
+    '7': '𝟟', '8': '𝟠', '9': '𝟡'
+  };
+
+  // Mathematical Script / Calligraphic Characters (\mathcal{A}..\mathcal{Z})
+  var MATHCAL = {
+    'A': '𝒜', 'B': 'ℬ', 'C': '𝒞', 'D': '𝒟', 'E': 'ℰ', 'F': 'ℱ', 'G': '𝒢',
+    'H': 'ℋ', 'I': 'ℐ', 'J': '𝒥', 'K': '𝒦', 'L': 'ℒ', 'M': 'ℳ', 'N': '𝒩',
+    'O': '𝒪', 'P': '𝒫', 'Q': '𝒬', 'R': 'ℛ', 'S': '𝒮', 'T': '𝒯', 'U': '𝒰',
+    'V': '𝒱', 'W': '𝒲', 'X': '𝒳', 'Y': '𝒴', 'Z': '𝒵'
+  };
+
+  // Mathematical Operators, Relations & Symbols (Google Docs Symbols)
+  var SYMBOLS = {
+    // Arithmetic & Operators
+    'pm': '±', 'mp': '∓', 'times': '×', 'div': '÷', 'cdot': '·',
+    'ast': '∗', 'star': '★', 'circ': '∘', 'bullet': '•',
+    'sum': '∑', 'prod': '∏', 'coprod': '∐',
+    'int': '∫', 'iint': '∬', 'iiint': '∭', 'oint': '∮',
+    'nabla': '∇', 'partial': '∂', 'infty': '∞',
+    'aleph': 'ℵ', 'hbar': 'ℏ', 'ell': 'ℓ',
+
+    // Relations & Logic
+    'le': '≤', 'leq': '≤', 'ge': '≥', 'geq': '≥',
+    'ne': '≠', 'neq': '≠', 'approx': '≈', 'sim': '∼', 'simeq': '≃',
+    'equiv': '≡', 'cong': '≅', 'propto': '∝',
+    'll': '≪', 'gg': '≫', 'parallel': '∥', 'perp': '⊥',
+    'forall': '∀', 'exists': '∃', 'nexists': '∄',
+    'neg': '¬', 'lor': '∨', 'land': '∧',
+    'in': '∈', 'notin': '∉', 'ni': '∋',
+    'subset': '⊂', 'subseteq': '⊆', 'supset': '⊃', 'supseteq': '⊇',
+    'cap': '∩', 'cup': '∪', 'setminus': '∖', 'emptyset': '∅',
+
+    // Arrows
+    'to': '→', 'rightarrow': '→', 'leftarrow': '←',
+    'leftrightarrow': '↔', 'Rightarrow': '⇒', 'Leftarrow': '⇐',
+    'Leftrightarrow': '⇔', 'mapsto': '↦', 'nearrow': '↗', 'searrow': '↘',
+    'swarrow': '↙', 'nwarrow': '↖', 'uparrow': '↑', 'downarrow': '↓',
+
+    // Brackets & Punctuations
+    'langle': '⟨', 'rangle': '⟩', 'lceil': '⌈', 'rceil': '⌉',
+    'lfloor': '⌊', 'rfloor': '⌋', 'dots': '…', 'ldots': '…', 'cdots': '⋯',
+    'ddots': '⋱', 'vdots': '⋮', 'prime': '′', 'dag': '†', 'ddag': '‡'
+  };
+
+  // Unicode Superscript fallbacks
+  var SUPERSCRIPTS = {
+    '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+    '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+    '+': '⁺', '-': '⁻', '=': '⁼', '(': '⁽', ')': '⁾',
+    'n': 'ⁿ', 'i': 'ⁱ', 'j': 'ʲ', 'k': 'ᵏ', 'T': 'ᵀ', 't': 'ᵗ',
+    'a': 'ᵃ', 'b': 'ᵇ', 'c': 'ᶜ', 'd': 'ᵈ', 'e': 'ᵉ', 'f': 'ᶠ',
+    'm': 'ᵐ', 'p': 'ᵖ', 'r': 'ʳ', 's': 'ˢ', 'u': 'ᵘ', 'v': 'ᵛ',
+    'x': 'ˣ', 'y': 'ʸ', 'z': 'ᶻ'
+  };
+
+  // Unicode Subscript fallbacks
+  var SUBSCRIPTS = {
+    '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
+    '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
+    '+': '₊', '-': '₋', '=': '₌', '(': '₍', ')': '₎',
+    'a': 'ₐ', 'e': 'ₑ', 'h': 'ₕ', 'i': 'ᵢ', 'j': 'ⱼ',
+    'k': 'ₖ', 'l': 'ₗ', 'm': 'ₘ', 'n': 'ₙ', 'o': 'ₒ',
+    'p': 'ₚ', 'r': 'ᵣ', 's': 'ₛ', 't': 'ₜ', 'u': 'ᵤ',
+    'v': 'ᵥ', 'x': 'ₓ'
+  };
+
+  function toSuperscript(str) {
+    var out = '';
+    for (var i = 0; i < str.length; i++) {
+      var c = str[i];
+      out += SUPERSCRIPTS[c] || c;
+    }
+    return out;
+  }
+
+  function toSubscript(str) {
+    var out = '';
+    for (var i = 0; i < str.length; i++) {
+      var c = str[i];
+      out += SUBSCRIPTS[c] || c;
+    }
+    return out;
+  }
+
+  function findMatchingBrace(str, openPos) {
+    var depth = 0;
+    for (var i = openPos; i < str.length; i++) {
+      if (str[i] === '{') depth++;
+      else if (str[i] === '}') {
+        depth--;
+        if (depth === 0) return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Tokenizes a LaTeX math formula into structured runs for Google Docs.
+   * Each run contains:
+   *   text: the string with Greek and math symbols resolved
+   *   format: "NORMAL", "SUBSCRIPT", or "SUPERSCRIPT"
+   * Protects text commands (\text{...}) so words with underscores aren't broken.
+   */
+  function parseLatexToFormattedRuns(latex) {
+    if (!latex) return [];
+
+    var s = latex.trim();
+    // Strip outer quotes if selected with quotes
+    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+      s = s.substring(1, s.length - 1).trim();
+    }
+    // Strip math delimiters ONLY if the interior does not contain additional matching delimiters
+    if (s.startsWith('$$') && s.endsWith('$$') && s.length >= 4) {
+      var innerBlock = s.substring(2, s.length - 2);
+      if (innerBlock.indexOf('$$') === -1) {
+        s = innerBlock.trim();
+      }
+    } else if (s.startsWith('$') && s.endsWith('$') && s.length >= 2) {
+      var innerInline = s.substring(1, s.length - 1);
+      if (innerInline.indexOf('$') === -1) {
+        s = innerInline.trim();
+      }
+    } else if (s.startsWith('\\[') && s.endsWith('\\]') && s.length >= 4) {
+      var innerBracket = s.substring(2, s.length - 2);
+      if (innerBracket.indexOf('\\]') === -1) {
+        s = innerBracket.trim();
+      }
+    } else if (s.startsWith('\\(') && s.endsWith('\\)') && s.length >= 4) {
+      var innerParen = s.substring(2, s.length - 2);
+      if (innerParen.indexOf('\\)') === -1) {
+        s = innerParen.trim();
+      }
+    }
+
+    // 1. Protect underscores and symbols inside text commands (\text, \mathrm, \operatorname, etc.)
+    var textCommands = ['text', 'mathrm', 'mathbf', 'mathit', 'operatorname', 'textbf', 'textit'];
+    for (var c = 0; c < textCommands.length; c++) {
+      var cmd = textCommands[c];
+      var search = '\\' + cmd + '{';
+      var idx = 0;
+      while ((idx = s.indexOf(search, idx)) !== -1) {
+        var openPos = idx + search.length - 1;
+        var closePos = findMatchingBrace(s, openPos);
+        if (closePos === -1) { idx++; continue; }
+        var inner = s.substring(openPos + 1, closePos);
+        var safeInner = inner.replace(/\\_/g, '_').replace(/_/g, '\uE000')
+                             .replace(/\\%/g, '%').replace(/%/g, '\uE001')
+                             .replace(/\\&/g, '&').replace(/&/g, '\uE002')
+                             .replace(/\\#/g, '#').replace(/#/g, '\uE003');
+        s = s.substring(0, idx) + safeInner + s.substring(closePos + 1);
+        idx = idx + safeInner.length;
+      }
+    }
+
+    // 2. Fractions: \frac{num}{den} -> (num) / (den)
+    idx = 0;
+    while ((idx = s.indexOf('\\frac{', idx)) !== -1) {
+      var numOpen = idx + 5;
+      var numClose = findMatchingBrace(s, numOpen);
+      if (numClose === -1) break;
+      var afterNum = numClose + 1;
+      if (s[afterNum] !== '{') { idx = afterNum; continue; }
+      var denClose = findMatchingBrace(s, afterNum);
+      if (denClose === -1) break;
+      var num = s.substring(numOpen + 1, numClose);
+      var den = s.substring(afterNum + 1, denClose);
+      s = s.substring(0, idx) + '(' + num + ') / (' + den + ')' + s.substring(denClose + 1);
+    }
+
+    // 3. Roots: \sqrt{x} -> √(x)
+    idx = 0;
+    while ((idx = s.indexOf('\\sqrt{', idx)) !== -1) {
+      var openPos = idx + 5;
+      var closePos = findMatchingBrace(s, openPos);
+      if (closePos === -1) break;
+      var inner = s.substring(openPos + 1, closePos);
+      s = s.substring(0, idx) + '√(' + inner + ')' + s.substring(closePos + 1);
+    }
+
+    // 4. Blackboard bold: \mathbb{X} -> 𝕀, ℝ, ℂ
+    s = s.replace(/\\mathbb\{([A-Za-z0-9])\}/g, function(_, char) {
+      return BLACKBOARD_BOLD[char] || char;
+    });
+
+    // 4b. Mathematical Script / Calligraphic: \mathcal{X} -> 𝒢, ℒ, ℛ
+    s = s.replace(/\\mathcal\{([A-Za-z])\}/g, function(_, char) {
+      return MATHCAL[char] || char;
+    });
+
+    // Escaped set braces: \{ -> {, \} -> }
+    s = s.replace(/\\\{/g, '{').replace(/\\\}/g, '}');
+
+    // 5. Greek lowercase & uppercase
+    for (var k in GREEK_LOWER) {
+      s = s.replace(new RegExp('\\\\' + k + '(?![a-zA-Z])', 'g'), GREEK_LOWER[k]);
+    }
+    for (var k in GREEK_UPPER) {
+      s = s.replace(new RegExp('\\\\' + k + '(?![a-zA-Z])', 'g'), GREEK_UPPER[k]);
+    }
+
+    // 6. Math operators, relations, arrows
+    for (var k in SYMBOLS) {
+      s = s.replace(new RegExp('\\\\' + k + '(?![a-zA-Z])', 'g'), SYMBOLS[k]);
+    }
+
+    // 7. Formatting spaces & sizing modifiers
+    s = s.replace(/\\left\s*\\\{/g, '{')
+         .replace(/\\right\s*\\\}/g, '}')
+         .replace(/\\left\s*\./g, '')
+         .replace(/\\right\s*\./g, '')
+         .replace(/\\left\s*([(\[|])/g, '$1')
+         .replace(/\\right\s*([)\]|])/g, '$1')
+         .replace(/\\,/g, ' ').replace(/\\;/g, ' ').replace(/\\:/g, ' ')
+         .replace(/\\quad/g, '   ').replace(/\\qquad/g, '      ').replace(/\\!/g, '');
+
+    // 8. Fix common syntax typos like N{units} or M{sentences} missing the subscript underscore
+    s = s.replace(/([a-zA-Z])\{([a-zA-Z0-9_\uE000]+)\}/g, '$1_{$2}');
+
+    // 9. Tokenize into runs of NORMAL, SUBSCRIPT, SUPERSCRIPT
+    var rawRuns = [];
+    var i = 0;
+    var cur = '';
+
+    while (i < s.length) {
+      if (s[i] === '_' || s[i] === '^') {
+        var isSub = s[i] === '_';
+        if (cur) {
+          rawRuns.push({ text: cur, format: 'NORMAL' });
+          cur = '';
+        }
+        i++;
+        var scriptContent = '';
+        if (i < s.length && s[i] === '{') {
+          var closePos = findMatchingBrace(s, i);
+          if (closePos !== -1) {
+            scriptContent = s.substring(i + 1, closePos);
+            i = closePos + 1;
+          } else {
+            scriptContent = s[i];
+            i++;
+          }
+        } else if (i < s.length) {
+          scriptContent = s[i];
+          i++;
+        }
+
+        // Clean any residual braces and resolve nested scripts
+        scriptContent = scriptContent.replace(/_\{([^{}]+)\}/g, function(_, c) { return toSubscript(c); });
+        scriptContent = scriptContent.replace(/_([a-zA-Z0-9]+)/g, function(_, c) { return toSubscript(c); });
+        scriptContent = scriptContent.replace(/\{([^{}]+)\}/g, '$1');
+        rawRuns.push({ text: scriptContent, format: isSub ? 'SUBSCRIPT' : 'SUPERSCRIPT' });
+      } else {
+        cur += s[i];
+        i++;
+      }
+    }
+    if (cur) rawRuns.push({ text: cur, format: 'NORMAL' });
+
+    // 10. Restore placeholders and merge adjacent runs with the same format
+    var mergedRuns = [];
+    for (var r = 0; r < rawRuns.length; r++) {
+      var run = rawRuns[r];
+      var restoredText = run.text.replace(/\uE000/g, '_')
+                                 .replace(/\uE001/g, '%')
+                                 .replace(/\uE002/g, '&')
+                                 .replace(/\uE003/g, '#');
+      if (!restoredText) continue;
+
+      if (mergedRuns.length > 0 && mergedRuns[mergedRuns.length - 1].format === run.format) {
+        mergedRuns[mergedRuns.length - 1].text += restoredText;
+      } else {
+        mergedRuns.push({ text: restoredText, format: run.format });
+      }
+    }
+
+    return mergedRuns;
+  }
+
+  /**
+   * Helper that converts LaTeX directly to a single formatted string with Unicode sub/superscripts.
+   */
+  function toUnicode(latex) {
+    var runs = parseLatexToFormattedRuns(latex);
+    var out = '';
+    for (var i = 0; i < runs.length; i++) {
+      var r = runs[i];
+      if (r.format === 'SUBSCRIPT') {
+        out += toSubscript(r.text);
+      } else if (r.format === 'SUPERSCRIPT') {
+        out += toSuperscript(r.text);
+      } else {
+        out += r.text;
+      }
+    }
+    return out;
+  }
+
+  return {
+    toUnicode: toUnicode,
+    parseLatexToFormattedRuns: parseLatexToFormattedRuns,
+    toSuperscript: toSuperscript,
+    toSubscript: toSubscript,
+    GREEK_LOWER: GREEK_LOWER,
+    GREEK_UPPER: GREEK_UPPER,
+    BLACKBOARD_BOLD: BLACKBOARD_BOLD,
+    MATHCAL: MATHCAL,
+    SYMBOLS: SYMBOLS
+  };
+})();
+
+// Export for Node testing environment if present
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = UnicodeMap;
+}

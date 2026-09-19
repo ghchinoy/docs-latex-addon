@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script>
+    window.MathJax = {
+      startup: {
+        typeset: false
+      },
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'inline'
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: #f8f9fa;
+      color: #202124;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a73e8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 2px rgba(60,64,67,0.06);
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #5f6368;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    textarea {
+      width: 100%;
+      height: 75px;
+      padding: 8px;
+      border: 1px solid #dadce0;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 12px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26,115,232,0.15);
+    }
+    .preview-box {
+      margin-top: 8px;
+      padding: 12px;
+      background: #fafafa;
+      border: 1px dashed #ced4da;
+      border-radius: 6px;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: auto;
+    }
+    .preview-error {
+      color: #d93025;
+      font-size: 11px;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background-color 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary {
+      background-color: #1a73e8;
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background-color: #1557b0;
+    }
+    .btn-success {
+      background-color: #188038;
+      color: #ffffff;
+    }
+    .btn-success:hover {
+      background-color: #137333;
+    }
+    .btn-secondary {
+      background-color: #ffffff;
+      color: #1a73e8;
+      border-color: #dadce0;
+    }
+    .btn-secondary:hover {
+      background-color: #f1f3f4;
+    }
+    .btn-outline {
+      background-color: #ffffff;
+      color: #5f6368;
+      border-color: #dadce0;
+    }
+    .btn-outline:hover {
+      background-color: #f8f9fa;
+      color: #202124;
+    }
+    #status-toast {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      display: none;
+    }
+    .status-success {
+      background: #e6f4ea;
+      color: #137333;
+      border: 1px solid #ceead6;
+    }
+    .status-error {
+      background: #fce8e6;
+      color: #c5221f;
+      border: 1px solid #fad2cf;
+    }
+    .status-info {
+      background: #e8f0fe;
+      color: #1a73e8;
+      border: 1px solid #d2e3fc;
+    }
+    .footer-note {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 11px;
+      color: #5f6368;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <h2>
+    <span>∑</span> Native Google Docs Math
+  </h2>
+
+  <!-- SELECTION & BATCH ACTIONS -->
+  <div class="card">
+    <div class="card-title">Transform Document Formulas</div>
+    <button class="btn btn-primary" onclick="renderSelection()">
+      ✨ Render Selected into Docs Symbols
+    </button>
+    <button class="btn btn-secondary" onclick="renderAllInDoc()">
+      🔍 Find & Render All in Document
+    </button>
+  </div>
+
+  <!-- INTERACTIVE LIVE PREVIEW -->
+  <div class="card">
+    <div class="card-title">Live Preview & Insert</div>
+    <textarea id="latex-input" placeholder="Type LaTeX formula (e.g. \Delta_{\text{TN}} \approx 0)..." oninput="updatePreview()"></textarea>
+    <div class="preview-box" id="preview-output">
+      <span style="color:#80868b;font-size:12px;">Live preview will appear here</span>
+    </div>
+
+    <!-- 2D PROPER FRACTION INSERT -->
+    <button class="btn btn-success" onclick="insert2DFromPreview()">
+      📐 Insert as 2D Equation (from Preview)
+    </button>
+
+    <!-- NATIVE TEXT SYMBOLS INSERT -->
+    <button class="btn btn-secondary" onclick="insertNativeSymbolsFromPreview()">
+      🔤 Insert as Native Symbols (Text)
+    </button>
+
+    <button class="btn btn-outline" onclick="loadSampleFormula()" style="font-size:11px;padding:4px 8px;">
+      💡 Load Example (UNA Formula)
+    </button>
+  </div>
+
+  <!-- STATUS TOAST -->
+  <div id="status-toast"></div>
+
+  <div class="footer-note">
+    100% offline & local to your browser. Renders with true stacked fractions and Google Docs native special characters without external web APIs.
+  </div>
+
+  <script>
+    function showToast(msg, type) {
+      var toast = document.getElementById('status-toast');
+      toast.textContent = msg;
+      toast.className = 'status-' + (type || 'info');
+      toast.style.display = 'block';
+      setTimeout(function() {
+        toast.style.display = 'none';
+      }, 5000);
+    }
+
+    function sanitizeLatexClient(latex) {
+      if (!latex) return '';
+      var s = latex;
+      var textCommands = ['text', 'mathrm', 'mathbf', 'mathit', 'operatorname', 'textbf', 'textit'];
+      for (var c = 0; c < textCommands.length; c++) {
+        var cmd = textCommands[c];
+        var search = '\\' + cmd + '{';
+        var idx = 0;
+        while ((idx = s.indexOf(search, idx)) !== -1) {
+          var openPos = idx + search.length - 1;
+          var depth = 0;
+          var closePos = -1;
+          for (var i = openPos; i < s.length; i++) {
+            if (s[i] === '{') depth++;
+            else if (s[i] === '}') {
+              depth--;
+              if (depth === 0) { closePos = i; break; }
+            }
+          }
+          if (closePos === -1) { idx++; continue; }
+
+          var inner = s.substring(openPos + 1, closePos);
+          var sanitizedInner = inner
+            .replace(/([^\\])_/g, '$1\\_').replace(/^_/, '\\_')
+            .replace(/([^\\])%/g, '$1\\%').replace(/^%/, '\\%')
+            .replace(/([^\\])&/g, '$1\\&').replace(/^&/, '\\&')
+            .replace(/([^\\])#/g, '$1\\#').replace(/^#/, '\\#');
+
+          s = s.substring(0, openPos + 1) + sanitizedInner + s.substring(closePos);
+          idx = openPos + 1 + sanitizedInner.length + 1;
+        }
+      }
+      return s;
+    }
+
+    function updatePreview() {
+      var latex = document.getElementById('latex-input').value.trim();
+      var previewBox = document.getElementById('preview-output');
+      if (!latex) {
+        previewBox.innerHTML = '<span style="color:#80868b;font-size:12px;">Live preview will appear here</span>';
+        return;
+      }
+      try {
+        var clean = latex.replace(/^\$\$|\$\$$|^\$|\$$/g, '').trim();
+        var sanitized = sanitizeLatexClient(clean);
+        katex.render(sanitized, previewBox, {
+          displayMode: true,
+          throwOnError: false
+        });
+      } catch (e) {
+        previewBox.innerHTML = '<span class="preview-error">' + e.message + '</span>';
+      }
+    }
+
+    function loadSampleFormula() {
+      var sample = '\\text{UNA} = \\frac{\\sum_{i=1}^{N_{\\text{units}}} \\mathbb{I}(\\text{unit}_i \\text{ is correctly verbalized})}{N_{\\text{units}}}';
+      document.getElementById('latex-input').value = sample;
+      updatePreview();
+      showToast('Loaded UNA equation into preview.', 'info');
+    }
+
+    function renderSelection() {
+      showToast('Rendering selected LaTeX into native Docs symbols...', 'info');
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res.success) {
+            showToast(res.message, 'success');
+          } else {
+            showToast(res.message, 'error');
+          }
+        })
+        .withFailureHandler(function(err) {
+          showToast('Error: ' + err.message, 'error');
+        })
+        .renderSelectedToNativeSymbols();
+    }
+
+    function renderAllInDoc() {
+      showToast('Finding and rendering all LaTeX expressions in document...', 'info');
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res.success) {
+            showToast(res.message, 'success');
+          } else {
+            showToast(res.message, 'error');
+          }
+        })
+        .withFailureHandler(function(err) {
+          showToast('Error: ' + err.message, 'error');
+        })
+        .renderAllInDocToNativeSymbols();
+    }
+
+    function insertNativeSymbolsFromPreview() {
+      var latex = document.getElementById('latex-input').value.trim();
+      if (!latex) {
+        showToast('Please type or paste a LaTeX formula first.', 'error');
+        return;
+      }
+      showToast('Inserting native symbols at cursor...', 'info');
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res.success) {
+            showToast(res.message, 'success');
+          } else {
+            showToast(res.message, 'error');
+          }
+        })
+        .withFailureHandler(function(err) {
+          showToast('Error: ' + err.message, 'error');
+        })
+        .insertNativeMathAtCursor(latex);
+    }
+
+    function insert2DFromPreview() {
+      var latex = document.getElementById('latex-input').value.trim();
+      if (!latex) {
+        showToast('Please type or paste a LaTeX formula first.', 'error');
+        return;
+      }
+      showToast('Generating 2D equation...', 'info');
+
+      var clean = latex.replace(/^\$\$|\$\$$|^\$|\$$/g, '').trim();
+      var sanitized = sanitizeLatexClient(clean);
+
+      // Check if MathJax is available for client-side SVG rendering
+      if (window.MathJax && typeof window.MathJax.tex2svg === 'function') {
+        try {
+          var container = window.MathJax.tex2svg(sanitized, { display: true });
+          var svgNode = container.querySelector('svg');
+          if (svgNode) {
+            svgToPng(svgNode, function(base64Data) {
+              showToast('Inserting 2D equation into document...', 'info');
+              google.script.run
+                .withSuccessHandler(function(res) {
+                  if (res.success) {
+                    showToast(res.message, 'success');
+                  } else {
+                    showToast(res.message, 'error');
+                  }
+                })
+                .withFailureHandler(function(err) {
+                  showToast('Error: ' + err.message, 'error');
+                })
+                .insert2DEquationImage(base64Data, latex);
+            });
+            return;
+          }
+        } catch (e) {
+          console.warn('MathJax SVG generation error, falling back to text:', e);
+        }
+      }
+
+      // Fallback to native text symbols if MathJax is still loading
+      insertNativeSymbolsFromPreview();
+    }
+
+    function svgToPng(svgElement, callback) {
+      var clone = svgElement.cloneNode(true);
+      var width = parseFloat(clone.getAttribute('width')) || 300;
+      var height = parseFloat(clone.getAttribute('height')) || 100;
+      var viewBox = clone.getAttribute('viewBox');
+
+      if (viewBox) {
+        var parts = viewBox.split(/[\s,]+/);
+        if (parts.length === 4) {
+          width = parseFloat(parts[2]);
+          height = parseFloat(parts[3]);
+        }
+      }
+
+      // MathJax default font scale is in ex units
+      var scale = 2.5;
+      var pixelWidth = Math.max(50, Math.ceil(width * 10 * scale));
+      var pixelHeight = Math.max(20, Math.ceil(height * 10 * scale));
+
+      clone.setAttribute('width', pixelWidth);
+      clone.setAttribute('height', pixelHeight);
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+      var svgString = new XMLSerializer().serializeToString(clone);
+      var svgDataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        canvas.width = pixelWidth;
+        canvas.height = pixelHeight;
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        // Transparent background
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, pixelWidth, pixelHeight);
+        callback(canvas.toDataURL('image/png'));
+      };
+      img.onerror = function(err) {
+        console.error('Failed to render SVG onto canvas:', err);
+        showToast('Falling back to native text symbols...', 'info');
+        insertNativeSymbolsFromPreview();
+      };
+      img.src = svgDataUri;
+    }
+  </script>
+</body>
+</html>

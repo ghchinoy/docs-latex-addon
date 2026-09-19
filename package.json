@@ -1,0 +1,26 @@
+{
+  "name": "google-docs-latex",
+  "version": "1.0.0",
+  "description": "Render LaTeX equations into native Google Docs symbols and script formatting without external services or images.",
+  "main": "Code.js",
+  "scripts": {
+    "test": "node tests/verify.js",
+    "push": "clasp push",
+    "pull": "clasp pull",
+    "watch": "clasp push --watch"
+  },
+  "keywords": [
+    "google-docs",
+    "latex",
+    "math",
+    "apps-script",
+    "google-workspace",
+    "unicode",
+    "equations"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@google/clasp": "^2.4.2"
+  }
+}

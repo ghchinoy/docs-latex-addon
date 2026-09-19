@@ -1,0 +1,8 @@
+# Ignore all files by default
+**/**
+
+# Only push necessary Apps Script files to Google Docs
+!appsscript.json
+!Code.js
+!UnicodeMap.js
+!Sidebar.html
