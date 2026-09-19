@@ -26,6 +26,7 @@ A lightweight Google Docs extension that converts raw LaTeX formulas copied from
 - [Troubleshooting & FAQ](#troubleshooting--faq)
 - [Contributing](#contributing)
 - [License](#license)
+- [Disclaimer](#disclaimer)
 
 ---
 
@@ -248,3 +249,9 @@ Contributions, symbol additions, and bug reports are welcome! Please review [`CO
 ## License
 
 This project is open-source and licensed under the [MIT License](./LICENSE).
+
+---
+
+## Disclaimer
+
+This is an independent open-source project and is not an official Google product or project. Google, Google Docs, and Google Workspace are trademarks of Google LLC.
