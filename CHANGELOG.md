@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-20
+
+### Added
+- **Extensible Labeled Arrows:** Native Google Docs rendering for `\xrightarrow[below]{above}`, `\xleftarrow`, `\xleftrightarrow`, `\xRightarrow`, `\xLeftarrow`, and `\xLeftrightarrow` by combining underlined superscript formatting (`DocumentApp.TextAlignment.SUPERSCRIPT` + `setUnderline(true)`) with inline arrow heads (`→`, `←`, `↔`, `⇒`, `⇐`, `⇔`) to form a continuous arrow shaft underneath the elevated label.
+- **Stacking & Overset/Underset Support:** Native rendering for `\overset{top}{base}`, `\stackrel{top}{base}`, and `\underset{bottom}{base}` when used with arrows or relations.
+- **Long Arrows:** Added `\longrightarrow` (`⟶`), `\longleftarrow` (`⟵`), `\longleftrightarrow` (`⟷`), `\Longrightarrow` (`⟹`), `\Longleftarrow` (`⟸`), and `\Longleftrightarrow` (`⟺`).
+
 ## [1.1.0] - 2026-09-20
 
 ### Added
@@ -33,6 +40,7 @@ _Initial release._
 - **Comprehensive Math Mappings:** Greek lowercase and uppercase, Blackboard Bold (`\mathbb`), Mathematical Script (`\mathcal`), relational symbols, arrows, and operator runs.
 - **Zero External Network Dependencies:** Operates without external image rendering services (CodeCogs) or third-party servers.
 
-[Unreleased]: https://github.com/ghchinoy/docs-latex-addon/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/ghchinoy/docs-latex-addon/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/ghchinoy/docs-latex-addon/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/ghchinoy/docs-latex-addon/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/ghchinoy/docs-latex-addon/releases/tag/v1.0.0

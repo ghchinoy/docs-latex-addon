@@ -34,7 +34,7 @@
  * - Container-Safe: Full support for regular Paragraphs, bullet/numbered ListItems, and Tables.
  */
 
-var APP_VERSION = '1.1.0';
+var APP_VERSION = '1.2.0';
 var CHANGELOG_URL = 'https://github.com/ghchinoy/docs-latex-addon/blob/main/CHANGELOG.md';
 
 /**
@@ -109,9 +109,9 @@ function showAboutDialog() {
     '    <div class="card">',
     '      <div class="card-title">What\'s New in v' + APP_VERSION + ':</div>',
     '      <ul>',
+    '        <li><strong>Extensible Arrows:</strong> <code>\\xrightarrow{...}</code>, <code>\\xleftarrow{...}</code>, and <code>\\overset{...}{\\to}</code> render as underlined superscripts above an arrow shaft.</li>',
     '        <li><strong>Math Functions:</strong> <code>\\exp</code>, <code>\\ln</code>, <code>\\log</code>, <code>\\sin</code>, <code>\\cos</code>, <code>\\min</code>, <code>\\max</code>, <code>\\argmax</code> render cleanly into Roman font.</li>',
     '        <li><strong>Sub/Superscript Operators:</strong> Support for <code>\\operatorname*{...}</code> with subscript limits.</li>',
-    '        <li><strong>Changelog Navigation:</strong> Direct version link from sidebar and document toolbar.</li>',
     '      </ul>',
     '    </div>',
     '    <div class="btn-bar">',
@@ -249,7 +249,7 @@ function replaceTextWithNativeFormattedMath(textElement, startOffset, endOffsetI
     } catch (_) {}
   }
 
-  // Apply native Google Docs text alignments (SUBSCRIPT, SUPERSCRIPT, NORMAL)
+  // Apply native Google Docs text alignments (SUBSCRIPT, SUPERSCRIPT, NORMAL) and underline (for extensible arrows)
   var currentOffset = startOffset;
   for (var i = 0; i < runs.length; i++) {
     var run = runs[i];
@@ -264,6 +264,10 @@ function replaceTextWithNativeFormattedMath(textElement, startOffset, endOffsetI
     } else {
       textElement.setTextAlignment(runStart, runEnd, DocumentApp.TextAlignment.NORMAL);
     }
+
+    try {
+      textElement.setUnderline(runStart, runEnd, Boolean(run.underline));
+    } catch (_) {}
 
     currentOffset += len;
   }
@@ -450,6 +454,11 @@ function insertNativeMathAtCursor(latex) {
       } else {
         textElement.setTextAlignment(runStart, runEnd, DocumentApp.TextAlignment.NORMAL);
       }
+
+      try {
+        textElement.setUnderline(runStart, runEnd, Boolean(run.underline));
+      } catch (_) {}
+
       currentOffset += len;
     }
     return { success: true, message: 'Inserted native Google Docs symbols at cursor.' };

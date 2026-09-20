@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Google%20Workspace-4285F4.svg)](https://workspace.google.com/)
 [![Runtime](https://img.shields.io/badge/Runtime-Apps%20Script%20V8-blue.svg)](https://developers.google.com/apps-script)
-[![Changelog](https://img.shields.io/badge/changelog-v1.1.0-blue.svg)](CHANGELOG.md)
+[![Changelog](https://img.shields.io/badge/changelog-v1.2.0-blue.svg)](CHANGELOG.md)
 
 A lightweight Google Docs extension that converts raw LaTeX formulas copied from Markdown, research papers, or AI chatbots (Gemini, ChatGPT, Claude) into **in-built Google Docs special characters and native subscript/superscript formatting** without external rendering servers or PNG images.
 
@@ -14,7 +14,7 @@ A lightweight Google Docs extension that converts raw LaTeX formulas copied from
 
 ## Table of Contents
 
-- [Why This Project?](#why-this-project)
+- [Why This Project? (Conversion vs. Composition)](#why-this-project-conversion-vs-composition)
 - [Quick Installation](#quick-installation)
   - [Method 1: 1-Click Template Copy (Fastest - Zero Setup)](#method-1-1-click-template-copy-fastest---zero-setup)
   - [Method 2: 60-Second Manual Setup in Any Existing Doc](#method-2-60-second-manual-setup-in-any-existing-doc)
@@ -34,16 +34,15 @@ A lightweight Google Docs extension that converts raw LaTeX formulas copied from
 
 ---
 
-## Why This Project?
+## Why This Project? (Conversion vs. Composition)
 
-Markdown and AI chats frequently drop equations like `$\Delta_{\text{TN}} \approx 0$` or `$$\text{CTG}(S, U) = \prod_{u \in U} \mathcal{G}(u, S) \in {0, 1}$$`. When copied into Google Docs, they remain unrendered plaintext.
+While there are many great [LaTeX equation editors on the Google Workspace Marketplace](https://workspace.google.com/u/0/marketplace/search/latex), most are designed around **interactive equation composition**—opening an editor modal to type formulas one by one and inserting rendered PNG/SVG images into the document.
 
-Existing tools often rely on external image servers that convert formulas into blurry low-res PNGs, introduce network lag, and break when encountering unescaped underscores in variable names. 
+In contrast, the goal of this project is **fast, accurate conversion of existing LaTeX symbols and passages generated from Markdown**—focusing on **native text conversion rather than composition**:
 
-This extension operates **100% locally and natively inside Google Docs**:
-- Replaces LaTeX commands with **Google Docs' in-built special characters** (`Δ`, `≈`, `∑`, `∏`, `𝒢`, `𝕀`).
-- Applies **Google Docs' native `TextAlignment.SUBSCRIPT` and `SUPERSCRIPT`** formatting directly to character ranges.
-- Requires **zero external APIs** and generates **zero PNG images**.
+- **Built for Markdown & LLM Workflows**: When pasting technical specs, research summaries, or AI outputs (from Gemini, ChatGPT, or Claude) into Google Docs, prose is often peppered with inline and block LaTeX (`$\Delta_{\text{TN}} \approx 0$`, `$= \exp(\text{logprob}) \in (0, 1]$`, `$\xrightarrow{H \ge 0.35\text{ nats}}$`, or `$$\text{CTG}(S, U) = \prod_{u \in U} \mathcal{G}(u, S) \in {0, 1}$$`).
+- **Native Editable Characters (Not Images)**: Instead of replacing inline math with blurry, unsearchable images that disrupt line height and font flow, this add-on converts LaTeX commands directly into **Google Docs' in-built special characters** (`Δ`, `≈`, `∑`, `∏`, `𝒢`, `𝕀`) and applies **native character formatting** (`TextAlignment.SUBSCRIPT`, `SUPERSCRIPT`, and underlined-superscript arrow shafts).
+- **Batch & Selection Conversion**: Convert a single highlighted passage or scan and transform an entire pasted Markdown document in one click—100% locally with **zero external APIs**.
 
 ---
 
@@ -185,6 +184,8 @@ Output: CTG(S, U) = ∏u ∈ U 𝒢(u, S) ∈ {0, 1}   (With subscript u ∈ U a
 | `\dots`, `\ldots`, `\cdots`, `\vdots`, `\ddots` | **…**, **…**, **⋯**, **⋮**, **⋱** | Horizontal, vertical & diagonal ellipses |
 | `\pm`, `\mp`, `\times`, `\cdot`, `\div` | **±**, **∓**, **×**, **·**, **÷** | Arithmetic operators |
 | `\to`, `\leftarrow`, `\Rightarrow`, `\Leftrightarrow` | **→**, **←**, **⇒**, **⇔** | Directional & logical arrows |
+| `\xrightarrow{H \ge 0.35\text{ nats}}`, `\xleftarrow{...}` | <u><sup>**H ≥ 0.35 nats**</sup></u>**→** | Extensible labeled arrows (underlined superscript shaft + arrowhead) |
+| `\exp`, `\ln`, `\log`, `\sin`, `\cos`, `\argmax`, `\lim` | **exp**, **ln**, **log**, **sin**, **cos**, **argmax**, **lim** | Upright Roman mathematical function & operator names |
 | `\mathbb{I}`, `\mathbb{R}`, `\mathbb{C}`, `\mathbb{N}` | **𝕀**, **ℝ**, **ℂ**, **ℕ** | Double-struck blackboard bold |
 | `\mathcal{G}`, `\mathcal{L}`, `\mathcal{S}` | **𝒢**, **ℒ**, **𝒮** | Mathematical script calligraphic |
 | `_{subscript}`, `^{superscript}` | <sub>**subscript**</sub>, <sup>**superscript**</sup> | Native Docs character text alignment |

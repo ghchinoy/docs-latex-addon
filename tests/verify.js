@@ -319,4 +319,31 @@ assert.ok(changelogContent.includes(`## [${pkg.version}]`), `CHANGELOG.md must c
 assert.ok(Code.CHANGELOG_URL.includes('CHANGELOG.md'), 'CHANGELOG_URL must point to CHANGELOG.md');
 console.log('   ✓ Test 13 passed: Version is strictly synchronized across package.json, Code.js, and CHANGELOG.md.\n');
 
+// 14. Test Extensible Labeled Arrows (\xrightarrow, \xleftarrow, \overset)
+console.log('14. Testing Extensible Labeled Arrows (\\xrightarrow{H \\ge 0.35\\text{ nats}}):');
+const xrightInput = String.raw`$\xrightarrow{H \ge 0.35\text{ nats}}$`;
+const xrightRuns = UnicodeMap.parseLatexToFormattedRuns(xrightInput);
+console.log('   Input:  ', xrightInput);
+console.log('   Runs:   ', JSON.stringify(xrightRuns));
+assert.strictEqual(xrightRuns.length, 2, 'Should produce 2 runs: underlined superscript label + normal arrow head');
+assert.strictEqual(xrightRuns[0].text, ' H ≥ 0.35 nats ');
+assert.strictEqual(xrightRuns[0].format, 'SUPERSCRIPT');
+assert.strictEqual(xrightRuns[0].underline, true, 'Label run must have underline: true to form the arrow shaft');
+assert.strictEqual(xrightRuns[1].text, '→');
+assert.strictEqual(xrightRuns[1].format, 'NORMAL');
+assert.ok(!xrightRuns[1].underline, 'Arrowhead must not be underlined');
+
+const xrightSubSup = String.raw`$\xrightarrow[T \to \infty]{H \ge 0.35\text{ nats}}$`;
+const xrightSubSupRuns = UnicodeMap.parseLatexToFormattedRuns(xrightSubSup);
+assert.strictEqual(xrightSubSupRuns.length, 3);
+assert.strictEqual(xrightSubSupRuns[0].text, ' H ≥ 0.35 nats ');
+assert.strictEqual(xrightSubSupRuns[0].format, 'SUPERSCRIPT');
+assert.strictEqual(xrightSubSupRuns[0].underline, true);
+assert.strictEqual(xrightSubSupRuns[1].text, '→');
+assert.strictEqual(xrightSubSupRuns[1].format, 'NORMAL');
+assert.strictEqual(xrightSubSupRuns[2].text, 'T → ∞');
+assert.strictEqual(xrightSubSupRuns[2].format, 'SUBSCRIPT');
+console.log('   ✓ Test 14 passed: \\xrightarrow renders as underlined superscript label + arrow head.\n');
+
 console.log('ALL VERIFICATION TESTS COMPLETED SUCCESSFULLY.');
+

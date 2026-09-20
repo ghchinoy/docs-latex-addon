@@ -90,7 +90,10 @@ var UnicodeMap = (function() {
     // Arrows
     'to': '→', 'rightarrow': '→', 'leftarrow': '←',
     'leftrightarrow': '↔', 'Rightarrow': '⇒', 'Leftarrow': '⇐',
-    'Leftrightarrow': '⇔', 'mapsto': '↦', 'nearrow': '↗', 'searrow': '↘',
+    'Leftrightarrow': '⇔', 'mapsto': '↦', 'longmapsto': '⟼',
+    'longrightarrow': '⟶', 'longleftarrow': '⟵', 'longleftrightarrow': '⟷',
+    'Longrightarrow': '⟹', 'Longleftarrow': '⟸', 'Longleftrightarrow': '⟺',
+    'nearrow': '↗', 'searrow': '↘',
     'swarrow': '↙', 'nwarrow': '↖', 'uparrow': '↑', 'downarrow': '↓',
 
     // Brackets & Punctuations
@@ -317,17 +320,99 @@ var UnicodeMap = (function() {
          .replace(/\\,/g, ' ').replace(/\\;/g, ' ').replace(/\\:/g, ' ')
          .replace(/\\quad/g, '   ').replace(/\\qquad/g, '      ').replace(/\\!/g, '');
 
+    // 7b. Extensible arrows (\xrightarrow, \xleftarrow, etc.) & stacked operators (\overset, \underset, \stackrel)
+    var xArrows = [
+      { cmd: 'xleftrightarrow', left: '←', right: '→' },
+      { cmd: 'xLeftrightarrow', left: '⇐', right: '⇔' },
+      { cmd: 'xrightarrow',     left: '',  right: '→' },
+      { cmd: 'xleftarrow',      left: '←', right: ''  },
+      { cmd: 'xRightarrow',     left: '',  right: '⇒' },
+      { cmd: 'xLeftarrow',      left: '⇐', right: ''  }
+    ];
+    for (var xa = 0; xa < xArrows.length; xa++) {
+      var arrowSpec = xArrows[xa];
+      var searchCmd = '\\' + arrowSpec.cmd;
+      var xaIdx = 0;
+      while ((xaIdx = s.indexOf(searchCmd, xaIdx)) !== -1) {
+        var afterCmd = xaIdx + searchCmd.length;
+        if (afterCmd < s.length && /[a-zA-Z]/.test(s[afterCmd])) {
+          xaIdx = afterCmd;
+          continue;
+        }
+        var cursor = afterCmd;
+        while (cursor < s.length && s[cursor] === ' ') cursor++;
+        var belowText = '';
+        if (cursor < s.length && s[cursor] === '[') {
+          var closeBracket = s.indexOf(']', cursor + 1);
+          if (closeBracket !== -1) {
+            belowText = s.substring(cursor + 1, closeBracket).trim();
+            cursor = closeBracket + 1;
+            while (cursor < s.length && s[cursor] === ' ') cursor++;
+          }
+        }
+        if (cursor < s.length && s[cursor] === '{') {
+          var braceClose = findMatchingBrace(s, cursor);
+          if (braceClose !== -1) {
+            var aboveText = s.substring(cursor + 1, braceClose).trim();
+            var replacement = arrowSpec.left +
+              (aboveText ? '\uE004{ ' + aboveText + ' }' : '') +
+              arrowSpec.right +
+              (belowText ? '_{' + belowText + '}' : '');
+            s = s.substring(0, xaIdx) + replacement + s.substring(braceClose + 1);
+            xaIdx += replacement.length;
+            continue;
+          }
+        }
+        xaIdx = afterCmd;
+      }
+    }
+
+    var stackCmds = ['overset', 'stackrel', 'underset'];
+    for (var sc = 0; sc < stackCmds.length; sc++) {
+      var sCmd = stackCmds[sc];
+      var sSearch = '\\' + sCmd + '{';
+      var sIdx = 0;
+      while ((sIdx = s.indexOf(sSearch, sIdx)) !== -1) {
+        var firstOpen = sIdx + sSearch.length - 1;
+        var firstClose = findMatchingBrace(s, firstOpen);
+        if (firstClose === -1) break;
+        var nextPos = firstClose + 1;
+        while (nextPos < s.length && s[nextPos] === ' ') nextPos++;
+        if (nextPos >= s.length || s[nextPos] !== '{') { sIdx = firstClose + 1; continue; }
+        var secondClose = findMatchingBrace(s, nextPos);
+        if (secondClose === -1) break;
+        var firstArg = s.substring(firstOpen + 1, firstClose).trim();
+        var secondArg = s.substring(nextPos + 1, secondClose).trim();
+        var stackRep = '';
+        if (sCmd === 'underset') {
+          stackRep = secondArg + '_{' + firstArg + '}';
+        } else if (/^[→←↔⇒⇐⇔⟶⟵⟷⟹⟸⟺↦⟼]$/.test(secondArg)) {
+          if (secondArg === '←' || secondArg === '⇐' || secondArg === '⟵' || secondArg === '⟸') {
+            stackRep = secondArg + '\uE004{ ' + firstArg + ' }';
+          } else {
+            stackRep = '\uE004{ ' + firstArg + ' }' + secondArg;
+          }
+        } else {
+          stackRep = secondArg + '^{' + firstArg + '}';
+        }
+        s = s.substring(0, sIdx) + stackRep + s.substring(secondClose + 1);
+        sIdx += stackRep.length;
+      }
+    }
+
     // 8. Fix common syntax typos like N{units} or M{sentences} missing the subscript underscore
     s = s.replace(/([a-zA-Z])\{([a-zA-Z0-9_\uE000]+)\}/g, '$1_{$2}');
 
-    // 9. Tokenize into runs of NORMAL, SUBSCRIPT, SUPERSCRIPT
+    // 9. Tokenize into runs of NORMAL, SUBSCRIPT, SUPERSCRIPT (and underlined superscripts for extensible arrows)
     var rawRuns = [];
     var i = 0;
     var cur = '';
 
     while (i < s.length) {
-      if (s[i] === '_' || s[i] === '^') {
-        var isSub = s[i] === '_';
+      if (s[i] === '_' || s[i] === '^' || s[i] === '\uE004') {
+        var marker = s[i];
+        var isSub = (marker === '_');
+        var isUnderlinedSup = (marker === '\uE004');
         if (cur) {
           rawRuns.push({ text: cur, format: 'NORMAL' });
           cur = '';
@@ -351,8 +436,14 @@ var UnicodeMap = (function() {
         // Clean any residual braces and resolve nested scripts
         scriptContent = scriptContent.replace(/_\{([^{}]+)\}/g, function(_, c) { return toSubscript(c); });
         scriptContent = scriptContent.replace(/_([a-zA-Z0-9]+)/g, function(_, c) { return toSubscript(c); });
+        scriptContent = scriptContent.replace(/\^\{([^{}]+)\}/g, function(_, c) { return toSuperscript(c); });
+        scriptContent = scriptContent.replace(/\^([a-zA-Z0-9]+)/g, function(_, c) { return toSuperscript(c); });
         scriptContent = scriptContent.replace(/\{([^{}]+)\}/g, '$1');
-        rawRuns.push({ text: scriptContent, format: isSub ? 'SUBSCRIPT' : 'SUPERSCRIPT' });
+        var runObj = { text: scriptContent, format: isSub ? 'SUBSCRIPT' : 'SUPERSCRIPT' };
+        if (isUnderlinedSup) {
+          runObj.underline = true;
+        }
+        rawRuns.push(runObj);
       } else {
         cur += s[i];
         i++;
@@ -360,7 +451,7 @@ var UnicodeMap = (function() {
     }
     if (cur) rawRuns.push({ text: cur, format: 'NORMAL' });
 
-    // 10. Restore placeholders and merge adjacent runs with the same format
+    // 10. Restore placeholders and merge adjacent runs with identical formatting
     var mergedRuns = [];
     for (var r = 0; r < rawRuns.length; r++) {
       var run = rawRuns[r];
@@ -370,10 +461,18 @@ var UnicodeMap = (function() {
                                  .replace(/\uE003/g, '#');
       if (!restoredText) continue;
 
-      if (mergedRuns.length > 0 && mergedRuns[mergedRuns.length - 1].format === run.format) {
+      if (
+        mergedRuns.length > 0 &&
+        mergedRuns[mergedRuns.length - 1].format === run.format &&
+        Boolean(mergedRuns[mergedRuns.length - 1].underline) === Boolean(run.underline)
+      ) {
         mergedRuns[mergedRuns.length - 1].text += restoredText;
       } else {
-        mergedRuns.push({ text: restoredText, format: run.format });
+        var newRun = { text: restoredText, format: run.format };
+        if (run.underline) {
+          newRun.underline = true;
+        }
+        mergedRuns.push(newRun);
       }
     }
 
@@ -391,7 +490,11 @@ var UnicodeMap = (function() {
       if (r.format === 'SUBSCRIPT') {
         out += toSubscript(r.text);
       } else if (r.format === 'SUPERSCRIPT') {
-        out += toSuperscript(r.text);
+        var supStr = toSuperscript(r.text);
+        if (r.underline) {
+          supStr = supStr.split('').map(function(ch) { return ch + '\u0332'; }).join('');
+        }
+        out += supStr;
       } else {
         out += r.text;
       }
