@@ -7,6 +7,8 @@
 
 A lightweight Google Docs extension that converts raw LaTeX formulas copied from Markdown, research papers, or AI chatbots (Gemini, ChatGPT, Claude) into **in-built Google Docs special characters and native subscript/superscript formatting** without external rendering servers or PNG images.
 
+<img width="372" height="255" alt="Image" src="https://github.com/user-attachments/assets/9ac91330-cfe9-4aab-9a27-33b237acc77f" />
+
 ---
 
 ## Table of Contents
@@ -95,14 +97,22 @@ npm install -g @google/clasp
 # 2. Log in to your Google account
 clasp login
 
-# 3. Clone this repository
+# 3. Enable the Apps Script API (Required on first use)
+# Visit https://script.google.com/home/usersettings and switch "Google Apps Script API" to ON.
+
+# 4. Clone this repository
 git clone https://github.com/ghchinoy/docs-latex.git
 cd docs-latex
 
-# 4. Create a new Google Doc bound project (or link an existing one)
+# 5. Create a bound Apps Script project
+# OPTION A: Attach to an EXISTING Google Doc (e.g. from the doc URL /d/<DOCUMENT_ID>/edit)
+clasp create --parentId "<YOUR_DOCUMENT_ID>" --title "LaTeX Math Extension"
+
+# OPTION B: Create a BRAND NEW Google Doc
 clasp create --type docs --title "LaTeX Math Extension"
 
-# 5. Push the code to Google Docs
+# 6. Push the code to Google Docs
+# (If clasp prompts: "Manifest file has been updated. Do you want to push and overwrite?", enter 'y')
 npm run push
 ```
 
@@ -248,6 +258,16 @@ To publish this extension as a globally installable Google Workspace Add-on:
 
 ### Q: Can I run this offline?
 **A:** Yes. The native symbol transformation logic runs 100% inside your Google Document without sending data to external web servers.
+
+### Q: Why does Clasp say "User has not enabled the Apps Script API"?
+**A:** Google turns off the Apps Script API by default on all user accounts. Visit [script.google.com/home/usersettings](https://script.google.com/home/usersettings) and toggle **Google Apps Script API** to **ON**, then retry your command.
+
+### Q: How do I find my Document ID for `--parentId`?
+**A:** Open your Google Document in your web browser. The ID is the alphanumeric string in the URL between `/d/` and `/edit`:
+```text
+https://docs.google.com/document/d/1aBnFAknjtLWtlgTK7tWcKbpjTv_ZWf82yvmgjHTe710/edit
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
 
 ---
 
