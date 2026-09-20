@@ -249,4 +249,50 @@ const headingState = simulateBoldState(true, ctgRuns);
 assert.strictEqual(headingState.normalizedBold, true);
 console.log('   ✓ Test 11 passed: Bold weight properly reset to false for body text.\n');
 
+// 12. Test Standard Mathematical Functions (\exp, \ln, \argmax, \in)
+console.log('12. Testing Mathematical Function Names (\\exp, \\ln, \\argmax):');
+const expFormula = String.raw`$= \exp(\text{logprob}) \in (0, 1]$`;
+const expRuns = UnicodeMap.parseLatexToFormattedRuns(expFormula);
+const expText = expRuns.map(r => r.text).join('');
+console.log('   Input:  ', expFormula);
+console.log('   Output: ', expText);
+assert.strictEqual(expText, '= exp(logprob) ∈ (0, 1]');
+assert.ok(!expText.includes('\\exp'));
+
+const entropyFormula = String.raw`$H = -\sum p \ln p$`;
+const entropyRuns = UnicodeMap.parseLatexToFormattedRuns(entropyFormula);
+const entropyText = entropyRuns.map(r => r.text).join('');
+console.log('   Input:  ', entropyFormula);
+console.log('   Output: ', entropyText);
+assert.strictEqual(entropyText, 'H = -∑ p ln p');
+assert.ok(!entropyText.includes('\\ln'));
+
+const argmaxFormula = String.raw`$\arg\max_{x} f(x)$`;
+const argmaxRuns = UnicodeMap.parseLatexToFormattedRuns(argmaxFormula);
+const argmaxText = argmaxRuns.map(r => r.text).join('');
+console.log('   Input:  ', argmaxFormula);
+console.log('   Output: ', argmaxText);
+assert.ok(argmaxText.startsWith('argmax'));
+assert.ok(!argmaxText.includes('\\arg'));
+assert.ok(!argmaxText.includes('\\max'));
+assert.ok(argmaxRuns.some(r => r.format === 'SUBSCRIPT' && r.text === 'x'));
+console.log('   ✓ Test 12 passed: Mathematical functions rendered cleanly in roman font with subscripts.\n');
+
+// 13. Test Version Synchronization (package.json, Code.js, CHANGELOG.md)
+console.log('13. Testing Version Synchronization:');
+const fs = require('fs');
+const path = require('path');
+const pkg = require('../package.json');
+const Code = require('../Code.js');
+console.log('   package.json version: ', pkg.version);
+console.log('   Code.js APP_VERSION:  ', Code.APP_VERSION);
+assert.strictEqual(Code.APP_VERSION, pkg.version, 'Code.js APP_VERSION must match package.json version');
+
+const changelogPath = path.join(__dirname, '..', 'CHANGELOG.md');
+assert.ok(fs.existsSync(changelogPath), 'CHANGELOG.md must exist');
+const changelogContent = fs.readFileSync(changelogPath, 'utf8');
+assert.ok(changelogContent.includes(`## [${pkg.version}]`), `CHANGELOG.md must contain release entry for version ${pkg.version}`);
+assert.ok(Code.CHANGELOG_URL.includes('CHANGELOG.md'), 'CHANGELOG_URL must point to CHANGELOG.md');
+console.log('   ✓ Test 13 passed: Version is strictly synchronized across package.json, Code.js, and CHANGELOG.md.\n');
+
 console.log('ALL VERIFICATION TESTS COMPLETED SUCCESSFULLY.');

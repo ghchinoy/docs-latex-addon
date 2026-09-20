@@ -10,6 +10,16 @@
  * - Container-Safe: Full support for regular Paragraphs, bullet/numbered ListItems, and Tables.
  */
 
+var APP_VERSION = '1.1.0';
+var CHANGELOG_URL = 'https://github.com/ghchinoy/docs-latex-addon/blob/main/CHANGELOG.md';
+
+/**
+ * Returns the current extension version.
+ */
+function getVersion() {
+  return APP_VERSION;
+}
+
 /**
  * Creates the "LaTeX Math" menu when document is opened.
  */
@@ -20,6 +30,8 @@ function onOpen() {
     .addItem('Render All in Doc into Docs Symbols', 'renderAllInDocToNativeSymbols')
     .addSeparator()
     .addItem('Open LaTeX Sidebar', 'showSidebar')
+    .addSeparator()
+    .addItem("What's New & Changelog (v" + APP_VERSION + ")", 'showAboutDialog')
     .addToUi();
 }
 
@@ -27,10 +39,68 @@ function onOpen() {
  * Opens the interactive LaTeX sidebar with KaTeX live preview.
  */
 function showSidebar() {
-  var html = HtmlService.createHtmlOutputFromFile('Sidebar')
-    .setTitle('LaTeX Equation Renderer')
+  var template = HtmlService.createTemplateFromFile('Sidebar');
+  template.version = APP_VERSION;
+  template.changelogUrl = CHANGELOG_URL;
+  var html = template.evaluate()
+    .setTitle('LaTeX Equation Renderer (v' + APP_VERSION + ')')
     .setWidth(340);
   DocumentApp.getUi().showSidebar(html);
+}
+
+/**
+ * Opens a modal dialog showing version details and direct access to the Changelog.
+ */
+function showAboutDialog() {
+  var html = [
+    '<!DOCTYPE html>',
+    '<html>',
+    '  <head>',
+    '    <base target="_blank">',
+    '    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">',
+    '    <style>',
+    '      body { font-family: "Google Sans", Roboto, Arial, sans-serif; margin: 0; padding: 20px; color: #202124; background: #fff; }',
+    '      .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; border-bottom: 1px solid #dadce0; padding-bottom: 10px; }',
+    '      .title { font-size: 15px; font-weight: 700; color: #1a73e8; }',
+    '      .badge { background: #e8f0fe; color: #1967d2; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; border: 1px solid #c2e7ff; }',
+    '      p { font-size: 12px; line-height: 1.5; color: #3c4043; margin-bottom: 12px; }',
+    '      .card { background: #f8f9fa; border: 1px solid #e8eaed; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; font-size: 12px; }',
+    '      .card-title { font-weight: 600; color: #202124; margin-bottom: 6px; }',
+    '      ul { margin: 0; padding-left: 18px; color: #3c4043; }',
+    '      li { margin-bottom: 5px; line-height: 1.4; }',
+    '      .btn-bar { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }',
+    '      .btn { font-family: inherit; font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }',
+    '      .btn-primary { background: #1a73e8; color: #fff; border: 1px solid #1a73e8; }',
+    '      .btn-primary:hover { background: #1557b0; }',
+    '      .btn-secondary { background: #fff; color: #5f6368; border: 1px solid #dadce0; }',
+    '      .btn-secondary:hover { background: #f1f3f4; }',
+    '    </style>',
+    '  </head>',
+    '  <body>',
+    '    <div class="header">',
+    '      <div class="title">LaTeX Math & Symbols Extension</div>',
+    '      <span class="badge">v' + APP_VERSION + '</span>',
+    '    </div>',
+    '    <p>Converts LaTeX math into native Google Docs characters and subscript/superscript formatting without external servers or images.</p>',
+    '    <div class="card">',
+    '      <div class="card-title">What\'s New in v' + APP_VERSION + ':</div>',
+    '      <ul>',
+    '        <li><strong>Math Functions:</strong> <code>\\exp</code>, <code>\\ln</code>, <code>\\log</code>, <code>\\sin</code>, <code>\\cos</code>, <code>\\min</code>, <code>\\max</code>, <code>\\argmax</code> render cleanly into Roman font.</li>',
+    '        <li><strong>Sub/Superscript Operators:</strong> Support for <code>\\operatorname*{...}</code> with subscript limits.</li>',
+    '        <li><strong>Changelog Navigation:</strong> Direct version link from sidebar and document toolbar.</li>',
+    '      </ul>',
+    '    </div>',
+    '    <div class="btn-bar">',
+    '      <button class="btn btn-secondary" onclick="google.script.host.close()">Close</button>',
+    '      <a class="btn btn-primary" href="' + CHANGELOG_URL + '" target="_blank">Open Full Changelog &rarr;</a>',
+    '    </div>',
+    '  </body>',
+    '</html>'
+  ].join('\n');
+  var output = HtmlService.createHtmlOutput(html)
+    .setWidth(450)
+    .setHeight(320);
+  DocumentApp.getUi().showModalDialog(output, "What's New & Changelog");
 }
 
 /**
@@ -519,4 +589,13 @@ function getAllDocumentContainers(body) {
   }
 
   return containers;
+}
+
+// Export for Node testing environment if present
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    APP_VERSION: APP_VERSION,
+    CHANGELOG_URL: CHANGELOG_URL,
+    getVersion: getVersion
+  };
 }

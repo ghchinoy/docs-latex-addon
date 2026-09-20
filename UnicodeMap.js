@@ -75,6 +75,44 @@ var UnicodeMap = (function() {
     'ddots': '⋱', 'vdots': '⋮', 'prime': '′', 'dag': '†', 'ddag': '‡'
   };
 
+  // Standard Mathematical Function & Operator Names (e.g. \exp, \ln, \sin, \cos, \argmax)
+  var MATH_FUNCTIONS = {
+    // Inverse Trigonometric & Hyperbolic
+    'arcsin': 'arcsin', 'arccos': 'arccos', 'arctan': 'arctan',
+    'arccot': 'arccot', 'arcsec': 'arcsec', 'arccsc': 'arccsc',
+    'arsinh': 'arsinh', 'arcosh': 'arcosh', 'artanh': 'artanh',
+    'sinh': 'sinh', 'cosh': 'cosh', 'tanh': 'tanh', 'coth': 'coth',
+    'sech': 'sech', 'csch': 'csch',
+
+    // Trigonometric
+    'sin': 'sin', 'cos': 'cos', 'tan': 'tan',
+    'csc': 'csc', 'sec': 'sec', 'cot': 'cot',
+
+    // Exponential & Logarithmic
+    'exp': 'exp', 'ln': 'ln', 'log': 'log', 'lg': 'lg',
+
+    // Limits, Optimization & Calculus
+    'liminf': 'liminf', 'limsup': 'limsup', 'lim': 'lim',
+    'argmax': 'argmax', 'argmin': 'argmin',
+    'max': 'max', 'min': 'min', 'sup': 'sup', 'inf': 'inf',
+
+    // Linear Algebra & Abstract Algebra
+    'det': 'det', 'dim': 'dim', 'ker': 'ker', 'deg': 'deg',
+    'gcd': 'gcd', 'hom': 'hom', 'arg': 'arg', 'Pr': 'Pr',
+    'rank': 'rank', 'trace': 'trace', 'tr': 'tr', 'diag': 'diag',
+    'span': 'span',
+
+    // Statistics & Probability
+    'var': 'var', 'Var': 'Var', 'cov': 'cov', 'Cov': 'Cov',
+
+    // Modulo
+    'bmod': 'mod', 'mod': 'mod'
+  };
+
+  var MATH_FUNC_KEYS = Object.keys(MATH_FUNCTIONS).sort(function(a, b) {
+    return b.length - a.length;
+  });
+
   // Unicode Superscript fallbacks
   var SUPERSCRIPTS = {
     '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
@@ -166,7 +204,7 @@ var UnicodeMap = (function() {
     }
 
     // 1. Protect underscores and symbols inside text commands (\text, \mathrm, \operatorname, etc.)
-    var textCommands = ['text', 'mathrm', 'mathbf', 'mathit', 'operatorname', 'textbf', 'textit'];
+    var textCommands = ['text', 'mathrm', 'mathbf', 'mathit', 'operatorname*', 'operatorname', 'textbf', 'textit'];
     for (var c = 0; c < textCommands.length; c++) {
       var cmd = textCommands[c];
       var search = '\\' + cmd + '{';
@@ -234,6 +272,15 @@ var UnicodeMap = (function() {
     // 6. Math operators, relations, arrows
     for (var k in SYMBOLS) {
       s = s.replace(new RegExp('\\\\' + k + '(?![a-zA-Z])', 'g'), SYMBOLS[k]);
+    }
+
+    // 6b. Standard mathematical functions & operators (\exp, \ln, \log, \sin, \cos, \max, \argmax, etc.)
+    s = s.replace(/\\pmod\{([^{}]+)\}/g, '(mod $1)');
+    s = s.replace(/\\arg\s*\\max(?![a-zA-Z])/g, '\\argmax');
+    s = s.replace(/\\arg\s*\\min(?![a-zA-Z])/g, '\\argmin');
+    for (var f = 0; f < MATH_FUNC_KEYS.length; f++) {
+      var fn = MATH_FUNC_KEYS[f];
+      s = s.replace(new RegExp('\\\\' + fn + '(?![a-zA-Z])', 'g'), MATH_FUNCTIONS[fn]);
     }
 
     // 7. Formatting spaces & sizing modifiers
@@ -337,7 +384,8 @@ var UnicodeMap = (function() {
     GREEK_UPPER: GREEK_UPPER,
     BLACKBOARD_BOLD: BLACKBOARD_BOLD,
     MATHCAL: MATHCAL,
-    SYMBOLS: SYMBOLS
+    SYMBOLS: SYMBOLS,
+    MATH_FUNCTIONS: MATH_FUNCTIONS
   };
 })();
 

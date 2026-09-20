@@ -4,6 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Google%20Workspace-4285F4.svg)](https://workspace.google.com/)
 [![Runtime](https://img.shields.io/badge/Runtime-Apps%20Script%20V8-blue.svg)](https://developers.google.com/apps-script)
+[![Changelog](https://img.shields.io/badge/changelog-v1.1.0-blue.svg)](CHANGELOG.md)
 
 A lightweight Google Docs extension that converts raw LaTeX formulas copied from Markdown, research papers, or AI chatbots (Gemini, ChatGPT, Claude) into **in-built Google Docs special characters and native subscript/superscript formatting** without external rendering servers or PNG images.
 
@@ -26,6 +27,7 @@ A lightweight Google Docs extension that converts raw LaTeX formulas copied from
   - [Option 1: Sharing via "Make a Copy" Template Link](#option-1-sharing-via-make-a-copy-template-link)
   - [Option 2: Deploying to Google Workspace Marketplace](#option-2-deploying-to-google-workspace-marketplace)
 - [Troubleshooting & FAQ](#troubleshooting--faq)
+- [Changelog](#changelog)
 - [Contributing](#contributing)
 - [License](#license)
 - [Disclaimer](#disclaimer)
@@ -36,7 +38,7 @@ A lightweight Google Docs extension that converts raw LaTeX formulas copied from
 
 Markdown and AI chats frequently drop equations like `$\Delta_{\text{TN}} \approx 0$` or `$$\text{CTG}(S, U) = \prod_{u \in U} \mathcal{G}(u, S) \in {0, 1}$$`. When copied into Google Docs, they remain unrendered plaintext.
 
-Existing tools often rely on external image servers (like CodeCogs) that convert formulas into blurry low-res PNGs, introduce network lag, and break when encountering unescaped underscores in variable names. 
+Existing tools often rely on external image servers that convert formulas into blurry low-res PNGs, introduce network lag, and break when encountering unescaped underscores in variable names. 
 
 This extension operates **100% locally and natively inside Google Docs**:
 - Replaces LaTeX commands with **Google Docs' in-built special characters** (`Δ`, `≈`, `∑`, `∏`, `𝒢`, `𝕀`).
@@ -268,6 +270,12 @@ To publish this extension as a globally installable Google Workspace Add-on:
 https://docs.google.com/document/d/1vxOw_FoGvNK6dfIUpfEeqINcieskAaXlm9-2W27-_hw/edit
                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
+
+---
+
+## Changelog
+
+See [`CHANGELOG.md`](./CHANGELOG.md) for a detailed history of changes, new features, and bug fixes across all versions.
 
 ---
 
