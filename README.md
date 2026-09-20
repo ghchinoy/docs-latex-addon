@@ -265,7 +265,7 @@ To publish this extension as a globally installable Google Workspace Add-on:
 ### Q: How do I find my Document ID for `--parentId`?
 **A:** Open your Google Document in your web browser. The ID is the alphanumeric string in the URL between `/d/` and `/edit`:
 ```text
-https://docs.google.com/document/d/1aBnFAknjtLWtlgTK7tWcKbpjTv_ZWf82yvmgjHTe710/edit
+https://docs.google.com/document/d/1vxOw_FoGvNK6dfIUpfEeqINcieskAaXlm9-2W27-_hw/edit
                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
