@@ -40,3 +40,22 @@ rtk pip list            rtk pnpm install        rtk npm run <script>
 - For debugging, use raw command without rtk prefix
 - `rtk proxy <cmd>` runs command without filtering but tracks usage
 <!-- /headroom:rtk-instructions -->
+
+## Google Apps Script & Clasp Workflow
+- **Binding to Existing Docs**: Use `clasp create --parentId "<DOC_ID>" --title "<TITLE>"`.
+- **API Prerequisite**: Ensure the Google Apps Script API is enabled at `https://script.google.com/home/usersettings`.
+- **Manifest Protection**: `clasp create` automatically pulls remote stubs which overwrite `appsscript.json`; always restore `appsscript.json` (to preserve `oauthScopes`) before pushing.
+- **Privacy & Portability**: Keep `.clasp.json` in `.gitignore` so personal script/document IDs are never committed or distributed.
+- **Deployment**: Deploy updates using `rtk clasp push`.
+
+## Versioning & Changelog
+- Maintain `CHANGELOG.md` adhering to Keep a Changelog v1.1.0 and Common Changelog standards (reference the [changelog-manager skill](https://github.com/ghchinoy/agent-skills/tree/main/plugins/repo-authoring/skills/changelog-manager)).
+- Synchronize version numbers across `package.json` (`version`), `Code.js` (`APP_VERSION`), and `CHANGELOG.md`.
+- Always run `rtk npm test` to verify syntax, math mappings, and version synchronization before pushing or committing.
+
+## Licensing
+- When running `addlicense` on this repository, use:
+  ```bash
+  addlicense -l mit -c "Hussain Chinoy" -s -y <YEAR> <files>
+  ```
+  to match the MIT license and independent open-source project disclaimer.
