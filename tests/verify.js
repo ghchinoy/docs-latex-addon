@@ -345,5 +345,23 @@ assert.strictEqual(xrightSubSupRuns[2].text, 'T → ∞');
 assert.strictEqual(xrightSubSupRuns[2].format, 'SUBSCRIPT');
 console.log('   ✓ Test 14 passed: \\xrightarrow renders as underlined superscript label + arrow head.\n');
 
+// 15. Test Mathematical Accents & Diacritics (\tilde{H}, \hat{y}, \bar{x}, \vec{v})
+console.log('15. Testing Mathematical Accents & Diacritics (\\tilde{H}(\\text{slot}_m) = ...):');
+const tildeFormula = String.raw`$\tilde{H}(\text{slot}_m) = \frac{H(\text{slot}_m)}{\ln|\mathcal{V}_m|} \in [0, 1]$`;
+const tildeRuns = UnicodeMap.parseLatexToFormattedRuns(tildeFormula);
+const tildeText = tildeRuns.map(r => r.text).join('');
+console.log('   Input:  ', tildeFormula);
+console.log('   Output: ', tildeText);
+assert.ok(tildeText.startsWith('H\u0303(slot'), 'Should start with H̃ (H + combining tilde U+0303)');
+assert.ok(!tildeText.includes('\\tilde'), 'Should not contain raw \\tilde');
+assert.strictEqual(tildeRuns[0].format, 'NORMAL', 'H̃ should remain in NORMAL text alignment, not subscript');
+assert.strictEqual(tildeText, 'H\u0303(slotm) = (H(slotm)) / (ln|𝒱m|) ∈ [0, 1]');
+
+const otherAccents = String.raw`$\hat{y} + \bar{x} + \vec{v} + \dot{q} + \ddot{q}$`;
+const otherAccentsText = UnicodeMap.parseLatexToFormattedRuns(otherAccents).map(r => r.text).join('');
+assert.strictEqual(otherAccentsText, 'ŷ + x̄ + v\u20D7 + q̇ + q̈');
+console.log('   ✓ Test 15 passed: \\tilde{H} rendered as H̃ with tilde directly above H.\n');
+
 console.log('ALL VERIFICATION TESTS COMPLETED SUCCESSFULLY.');
+
 

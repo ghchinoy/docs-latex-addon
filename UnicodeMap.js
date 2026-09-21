@@ -296,6 +296,71 @@ var UnicodeMap = (function() {
       s = s.replace(new RegExp('\\\\' + k + '(?![a-zA-Z])', 'g'), GREEK_UPPER[k]);
     }
 
+    // 5b. Mathematical Accents & Diacritics (\tilde{H}, \hat{y}, \bar{x}, \vec{v}, \dot{q}, \ddot{q}, \overline{AB})
+    var mathAccents = [
+      { cmd: 'overrightarrow', mark: '\u20D7', multi: true  },
+      { cmd: 'widetilde',      mark: '\u0303', multi: false },
+      { cmd: 'widehat',        mark: '\u0302', multi: false },
+      { cmd: 'overline',       mark: '\u0305', multi: true  },
+      { cmd: 'tilde',          mark: '\u0303', multi: false },
+      { cmd: 'hat',            mark: '\u0302', multi: false },
+      { cmd: 'bar',            mark: '\u0304', multi: false },
+      { cmd: 'vec',            mark: '\u20D7', multi: false },
+      { cmd: 'ddot',           mark: '\u0308', multi: false },
+      { cmd: 'dot',            mark: '\u0307', multi: false },
+      { cmd: 'check',          mark: '\u030C', multi: false },
+      { cmd: 'breve',          mark: '\u0306', multi: false },
+      { cmd: 'acute',          mark: '\u0301', multi: false },
+      { cmd: 'grave',          mark: '\u0300', multi: false }
+    ];
+    function combineAccent(innerStr, mark, multi) {
+      var trimmed = innerStr.trim();
+      if (!trimmed) return '';
+      var chars = Array.from(trimmed);
+      if (chars.length === 1) {
+        var single = chars[0] + mark;
+        return typeof single.normalize === 'function' ? single.normalize('NFC') : single;
+      }
+      if (multi) {
+        return chars.map(function(ch) { return ch === ' ' ? ch : ch + mark; }).join('');
+      }
+      var first = chars[0] + mark;
+      if (typeof first.normalize === 'function') first = first.normalize('NFC');
+      return first + chars.slice(1).join('');
+    }
+    for (var ma = 0; ma < mathAccents.length; ma++) {
+      var acc = mathAccents[ma];
+      var accSearch = '\\' + acc.cmd;
+      var accIdx = 0;
+      while ((accIdx = s.indexOf(accSearch, accIdx)) !== -1) {
+        var afterAcc = accIdx + accSearch.length;
+        if (afterAcc < s.length && /[a-zA-Z]/.test(s[afterAcc])) {
+          accIdx = afterAcc;
+          continue;
+        }
+        var curPos = afterAcc;
+        while (curPos < s.length && s[curPos] === ' ') curPos++;
+        if (curPos < s.length && s[curPos] === '{') {
+          var accClose = findMatchingBrace(s, curPos);
+          if (accClose !== -1) {
+            var innerAcc = s.substring(curPos + 1, accClose);
+            var accented = combineAccent(innerAcc, acc.mark, acc.multi);
+            s = s.substring(0, accIdx) + accented + s.substring(accClose + 1);
+            accIdx += accented.length;
+            continue;
+          }
+        } else if (curPos > afterAcc && curPos < s.length && /[A-Za-z0-9\u0370-\u03FF]/.test(s[curPos])) {
+          // Support unbraced \tilde H or \hat y
+          var singleChar = s[curPos];
+          var accentedSingle = combineAccent(singleChar, acc.mark, false);
+          s = s.substring(0, accIdx) + accentedSingle + s.substring(curPos + 1);
+          accIdx += accentedSingle.length;
+          continue;
+        }
+        accIdx = afterAcc;
+      }
+    }
+
     // 6. Math operators, relations, arrows
     for (var k in SYMBOLS) {
       s = s.replace(new RegExp('\\\\' + k + '(?![a-zA-Z])', 'g'), SYMBOLS[k]);
@@ -401,7 +466,8 @@ var UnicodeMap = (function() {
     }
 
     // 8. Fix common syntax typos like N{units} or M{sentences} missing the subscript underscore
-    s = s.replace(/([a-zA-Z])\{([a-zA-Z0-9_\uE000]+)\}/g, '$1_{$2}');
+    // (Ensure the single letter is NOT part of a multi-letter word or \command)
+    s = s.replace(/(^|[^\\a-zA-Z])([a-zA-Z])\{([a-zA-Z0-9_\uE000]+)\}/g, '$1$2_{$3}');
 
     // 9. Tokenize into runs of NORMAL, SUBSCRIPT, SUPERSCRIPT (and underlined superscripts for extensible arrows)
     var rawRuns = [];

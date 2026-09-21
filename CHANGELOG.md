@@ -11,9 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.0] - 2026-09-20
 
 ### Added
+- **Mathematical Accents & Diacritics:** Native Unicode combining and precomposed diacritical rendering for `\tilde{H}` (`H̃`), `\widetilde`, `\hat{y}` (`ŷ`), `\widehat`, `\bar{x}` (`x̄`), `\overline{AB}` (`A̅B̅`), `\vec{v}` (`v⃗`), `\overrightarrow`, `\dot{q}` (`q̇`), `\ddot{q}` (`q̈`), `\check`, `\breve`, `\acute`, and `\grave`.
 - **Extensible Labeled Arrows:** Native Google Docs rendering for `\xrightarrow[below]{above}`, `\xleftarrow`, `\xleftrightarrow`, `\xRightarrow`, `\xLeftarrow`, and `\xLeftrightarrow` by combining underlined superscript formatting (`DocumentApp.TextAlignment.SUPERSCRIPT` + `setUnderline(true)`) with inline arrow heads (`→`, `←`, `↔`, `⇒`, `⇐`, `⇔`) to form a continuous arrow shaft underneath the elevated label.
 - **Stacking & Overset/Underset Support:** Native rendering for `\overset{top}{base}`, `\stackrel{top}{base}`, and `\underset{bottom}{base}` when used with arrows or relations.
 - **Long Arrows:** Added `\longrightarrow` (`⟶`), `\longleftarrow` (`⟵`), `\longleftrightarrow` (`⟷`), `\Longrightarrow` (`⟹`), `\Longleftarrow` (`⟸`), and `\Longleftrightarrow` (`⟺`).
+
+### Fixed
+- **Command Brace Disambiguation:** Prevented single-letter typo auto-healing (`N{units}` $\rightarrow$ `N_{units}`) from matching multi-letter LaTeX commands followed by `{...}`.
 
 ## [1.1.0] - 2026-09-20
 
