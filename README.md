@@ -185,6 +185,7 @@ Output: CTG(S, U) = ∏u ∈ U 𝒢(u, S) ∈ {0, 1}   (With subscript u ∈ U a
 | `\pm`, `\mp`, `\times`, `\cdot`, `\div` | **±**, **∓**, **×**, **·**, **÷** | Arithmetic operators |
 | `\to`, `\leftarrow`, `\Rightarrow`, `\Leftrightarrow` | **→**, **←**, **⇒**, **⇔** | Directional & logical arrows |
 | `\tilde{H}`, `\hat{y}`, `\bar{x}`, `\vec{v}`, `\dot{q}` | **H̃**, **ŷ**, **x̄**, **v⃗**, **q̇** | Mathematical accents & combining diacritics |
+| `\lvert x \rvert`, `\lVert x \rVert`, `\|x\|` | **\|x\|**, **‖x‖**, **‖x‖** | Vertical bar, cardinality & norm delimiters |
 | `\xrightarrow{H \ge 0.35\text{ nats}}`, `\xleftarrow{...}` | <u><sup>**H ≥ 0.35 nats**</sup></u>**→** | Extensible labeled arrows (underlined superscript shaft + arrowhead) |
 | `\exp`, `\ln`, `\log`, `\sin`, `\cos`, `\argmax`, `\lim` | **exp**, **ln**, **log**, **sin**, **cos**, **argmax**, **lim** | Upright Roman mathematical function & operator names |
 | `\mathbb{I}`, `\mathbb{R}`, `\mathbb{C}`, `\mathbb{N}` | **𝕀**, **ℝ**, **ℂ**, **ℕ** | Double-struck blackboard bold |

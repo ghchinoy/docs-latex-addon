@@ -96,7 +96,9 @@ var UnicodeMap = (function() {
     'nearrow': '↗', 'searrow': '↘',
     'swarrow': '↙', 'nwarrow': '↖', 'uparrow': '↑', 'downarrow': '↓',
 
-    // Brackets & Punctuations
+    // Brackets, Bars & Punctuations
+    'lvert': '|', 'rvert': '|', 'vert': '|', 'mid': '|', 'nmid': '∤',
+    'lVert': '‖', 'rVert': '‖', 'Vert': '‖', 'parallel': '‖', 'nparallel': '∦',
     'langle': '⟨', 'rangle': '⟩', 'lceil': '⌈', 'rceil': '⌉',
     'lfloor': '⌊', 'rfloor': '⌋', 'dots': '…', 'ldots': '…', 'cdots': '⋯',
     'ddots': '⋱', 'vdots': '⋮', 'prime': '′', 'dag': '†', 'ddag': '‡'
@@ -285,8 +287,8 @@ var UnicodeMap = (function() {
       return MATHCAL[char] || char;
     });
 
-    // Escaped set braces: \{ -> {, \} -> }
-    s = s.replace(/\\\{/g, '{').replace(/\\\}/g, '}');
+    // Escaped set braces and double vertical bars: \{ -> {, \} -> }, \| -> ‖
+    s = s.replace(/\\\{/g, '{').replace(/\\\}/g, '}').replace(/\\\|/g, '‖');
 
     // 5. Greek lowercase & uppercase
     for (var k in GREEK_LOWER) {
@@ -375,13 +377,12 @@ var UnicodeMap = (function() {
       s = s.replace(new RegExp('\\\\' + fn + '(?![a-zA-Z])', 'g'), MATH_FUNCTIONS[fn]);
     }
 
-    // 7. Formatting spaces & sizing modifiers
-    s = s.replace(/\\left\s*\\\{/g, '{')
-         .replace(/\\right\s*\\\}/g, '}')
-         .replace(/\\left\s*\./g, '')
-         .replace(/\\right\s*\./g, '')
-         .replace(/\\left\s*([(\[|])/g, '$1')
-         .replace(/\\right\s*([)\]|])/g, '$1')
+    // 7. Formatting spaces & delimiter sizing modifiers (\left, \right, \middle, \big, \Big, \bigg, \Bigg)
+    s = s.replace(/\\(?:left|right|middle|[bB]ig{1,2}[lrm]?)\s*\\\{/g, '{')
+         .replace(/\\(?:left|right|middle|[bB]ig{1,2}[lrm]?)\s*\\\}/g, '}')
+         .replace(/\\(?:left|right|middle|[bB]ig{1,2}[lrm]?)\s*\./g, '')
+         .replace(/\\(?:left|right|middle|[bB]ig{1,2}[lrm]?)\s*([(\[|‖⟨⌈⌊/])/g, '$1')
+         .replace(/\\(?:left|right|middle|[bB]ig{1,2}[lrm]?)\s*([)\]|‖⟩⌉⌋])/g, '$1')
          .replace(/\\,/g, ' ').replace(/\\;/g, ' ').replace(/\\:/g, ' ')
          .replace(/\\quad/g, '   ').replace(/\\qquad/g, '      ').replace(/\\!/g, '');
 

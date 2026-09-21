@@ -360,7 +360,15 @@ assert.strictEqual(tildeText, 'H\u0303(slotm) = (H(slotm)) / (ln|𝒱m|) ∈ [0,
 const otherAccents = String.raw`$\hat{y} + \bar{x} + \vec{v} + \dot{q} + \ddot{q}$`;
 const otherAccentsText = UnicodeMap.parseLatexToFormattedRuns(otherAccents).map(r => r.text).join('');
 assert.strictEqual(otherAccentsText, 'ŷ + x̄ + v\u20D7 + q̇ + q̈');
-console.log('   ✓ Test 15 passed: \\tilde{H} rendered as H̃ with tilde directly above H.\n');
+
+const lvertFormula = String.raw`$\tilde{H}_m = H_m / \ln\lvert\mathcal{V}_m\rvert \ge 0.16$`;
+const lvertRuns = UnicodeMap.parseLatexToFormattedRuns(lvertFormula);
+const lvertText = lvertRuns.map(r => r.text).join('');
+console.log('   Input:  ', lvertFormula);
+console.log('   Output: ', lvertText);
+assert.strictEqual(lvertText, 'H\u0303m = Hm / ln|𝒱m| ≥ 0.16');
+assert.ok(!lvertText.includes('\\lvert') && !lvertText.includes('\\rvert') && !lvertText.includes('\\tilde'));
+console.log('   ✓ Test 15 passed: \\tilde{H} and \\lvert/\\rvert rendered cleanly as H̃m = Hm / ln|𝒱m| ≥ 0.16.\n');
 
 console.log('ALL VERIFICATION TESTS COMPLETED SUCCESSFULLY.');
 
