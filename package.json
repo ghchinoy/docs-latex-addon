@@ -9,7 +9,8 @@
   "main": "Code.js",
   "scripts": {
     "test": "node tests/verify.js",
-    "push": "clasp push",
+    "bind": "sh -c 'rm -f .clasp.json && clasp create --parentId \"$1\" --title \"LaTeX Math Extension\" && git checkout appsscript.json && clasp push -f' --",
+    "push": "clasp push -f",
     "pull": "clasp pull",
     "watch": "clasp push --watch"
   },

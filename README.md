@@ -102,19 +102,19 @@ clasp login
 # Visit https://script.google.com/home/usersettings and switch "Google Apps Script API" to ON.
 
 # 4. Clone this repository
-git clone https://github.com/ghchinoy/docs-latex.git
-cd docs-latex
+git clone https://github.com/ghchinoy/docs-latex-addon.git
+cd docs-latex-addon
 
-# 5. Create a bound Apps Script project
-# OPTION A: Attach to an EXISTING Google Doc (e.g. from the doc URL /d/<DOCUMENT_ID>/edit)
+# 5. Bind and deploy to an EXISTING Google Doc in one step (recommended)
+# (Automatically removes any previous .clasp.json, creates the bound script, preserves appsscript.json scopes, and pushes)
+npm run bind -- "<YOUR_DOCUMENT_ID>"
+
+# Or manually via clasp:
+# Note: Remove .clasp.json first if you previously bound this folder to another doc ("Project file already exists.")
+rm -f .clasp.json
 clasp create --parentId "<YOUR_DOCUMENT_ID>" --title "LaTeX Math Extension"
-
-# OPTION B: Create a BRAND NEW Google Doc
-clasp create --type docs --title "LaTeX Math Extension"
-
-# 6. Push the code to Google Docs
-# (If clasp prompts: "Manifest file has been updated. Do you want to push and overwrite?", enter 'y')
-npm run push
+git checkout appsscript.json
+clasp push -f
 ```
 
 ---
@@ -271,6 +271,9 @@ To publish this extension as a globally installable Google Workspace Add-on:
 https://docs.google.com/document/d/1vxOw_FoGvNK6dfIUpfEeqINcieskAaXlm9-2W27-_hw/edit
                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
+
+### Q: Why does `clasp create` say `Project file already exists.`?
+**A:** `clasp` stores the currently bound script/document ID in a hidden `.clasp.json` file in the project root. If you previously bound the repository folder to another document, `clasp create` refuses to overwrite `.clasp.json`. Run `rm -f .clasp.json` first (or use `npm run bind -- "<YOUR_DOCUMENT_ID>"`, which cleans `.clasp.json`, binds the new document, restores `appsscript.json`, and pushes automatically).
 
 ---
 

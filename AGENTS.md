@@ -42,11 +42,11 @@ rtk pip list            rtk pnpm install        rtk npm run <script>
 <!-- /headroom:rtk-instructions -->
 
 ## Google Apps Script & Clasp Workflow
-- **Binding to Existing Docs**: Use `clasp create --parentId "<DOC_ID>" --title "<TITLE>"`.
+- **Binding to Existing Docs**: Use `npm run bind -- "<DOC_ID>"` (which runs `rm -f .clasp.json && clasp create --parentId "<DOC_ID>" --title "LaTeX Math Extension" && git checkout appsscript.json && clasp push -f`). If running `clasp create` manually when `.clasp.json` already exists from a previous document, always run `rm -f .clasp.json` first to avoid `Project file already exists.`.
 - **API Prerequisite**: Ensure the Google Apps Script API is enabled at `https://script.google.com/home/usersettings`.
-- **Manifest Protection**: `clasp create` automatically pulls remote stubs which overwrite `appsscript.json`; always restore `appsscript.json` (to preserve `oauthScopes`) before pushing.
+- **Manifest Protection**: `clasp create` automatically pulls remote stubs which overwrite `appsscript.json`; always restore `appsscript.json` (`git checkout appsscript.json` to preserve `oauthScopes`) before pushing (`clasp push -f`).
 - **Privacy & Portability**: Keep `.clasp.json` in `.gitignore` so personal script/document IDs are never committed or distributed.
-- **Deployment**: Deploy updates using `rtk clasp push`.
+- **Deployment**: Deploy updates using `rtk clasp push -f`.
 
 ## Versioning & Changelog
 - Maintain `CHANGELOG.md` adhering to Keep a Changelog v1.1.0 and Common Changelog standards (reference the [changelog-manager skill](https://github.com/ghchinoy/agent-skills/tree/main/plugins/repo-authoring/skills/changelog-manager)).
